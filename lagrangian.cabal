@@ -42,11 +42,11 @@ library
   exposed-modules: Numeric.AD.Lagrangian
   other-modules: Numeric.AD.Lagrangian.Internal
   ghc-options:          -Wall
-  build-depends:    base >=4.5 && < 5,
-                    nonlinear-optimization ==0.3.*,
-                    vector ==0.10.*,
+  build-depends:    base >=4.7 && < 5,
+                    nonlinear-optimization,
+                    vector ==0.12.*,
                     ad >= 4 && < 5,
-                    hmatrix >= 0.14 && < 0.17
+                    hmatrix >= 0.19 && < 0.20
   hs-source-dirs:      src
 
 Test-Suite tests
@@ -54,13 +54,14 @@ Test-Suite tests
   Hs-Source-Dirs: src, tests
   type:       exitcode-stdio-1.0
   main-is:    Main.hs
-  build-depends: base >=4.5 && < 5,
-                 tasty >= 0.8 && < 0.9,
-                 tasty-hunit >= 0.8 && < 1.0,
-                 tasty-quickcheck >= 0.8 && < 1.0,
-                 vector ==0.10.*,
-                 hmatrix >= 0.14 && < 0.17,
+  other-modules: Numeric.AD.Lagrangian.Internal
+  build-depends: base >=4.7 && < 5,
+                 tasty,
+                 tasty-hunit,
+                 tasty-quickcheck,
+                 vector ==0.12.*,
+                 hmatrix >= 0.19 && < 0.20,
                  ad >= 4 && < 5,
-                 nonlinear-optimization ==0.3.*,
+                 nonlinear-optimization,
                  lagrangian
 

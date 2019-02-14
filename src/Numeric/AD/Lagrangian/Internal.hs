@@ -4,14 +4,12 @@ module Numeric.AD.Lagrangian.Internal where
 
 import qualified Data.Vector.Unboxed as U
 import qualified Data.Vector.Storable as S
-import qualified Data.Packed.Vector as V
-import qualified Data.Packed.Matrix as M
 
 import GHC.IO (unsafePerformIO)
 
 import Numeric.AD
 import Numeric.Optimization.Algorithms.HagerZhang05
-import Numeric.LinearAlgebra.Algorithms
+import Numeric.LinearAlgebra
 
 -- | An equality constraint of the form @g(x, y, ...) = c@. Use '<=>' to
 -- construct a 'Constraint'.
@@ -38,7 +36,7 @@ minimize :: (forall a. (Floating a) => [a] -> a)
          -> Int
          -- ^ The arity of the objective function, which must equal the arity of
          -- the constraints
-         -> Either (Result, Statistics) (V.Vector Double, V.Vector Double)
+         -> Either (Result, Statistics) (S.Vector Double, S.Vector Double)
          -- ^ Either a 'Right' containing the argmin and the Lagrange
          -- multipliers, or a 'Left' containing an explanation of why the
          -- gradient descent failed
@@ -77,7 +75,7 @@ maximize :: (forall a. (Floating a) => [a] -> a)
          -> Int
          -- ^ The arity of the objective function, which must equal the arity of
          -- the constraints
-         -> Either (Result, Statistics) (V.Vector Double, V.Vector Double)
+         -> Either (Result, Statistics) (S.Vector Double, S.Vector Double)
          -- ^ Either a 'Right' containing the argmax and the Lagrange
          -- multipliers, or a 'Left' containing an explanation of why the
          -- gradient ascent failed
@@ -110,7 +108,7 @@ squaredGrad f = sum . fmap square . grad f where
 --   This is not a true feasibility test for the function. I am not sure
 --   exactly how to implement that. This just checks the feasiblility at a
 --   point. If this ever returns false, 'solve' can fail.
-feasible :: (Floating a, Field a, M.Element a)
+feasible :: (Floating a, Field a, Element a)
          => (forall b. (Floating b) => [b] -> b)
          ->[Constraint]
          -> [a]
@@ -119,7 +117,7 @@ feasible f constraints points = result where
     sqGradLgn :: (Floating a) => [a] -> a
     sqGradLgn = squaredGrad $ lagrangian f constraints $ length points
 
-    hessianMatrix = M.fromLists . hessian sqGradLgn $ points
+    hessianMatrix = trustSym . fromLists $ hessian sqGradLgn points
 
     -- make sure all of the eigenvalues are positive
-    result = all (>0) . V.toList . eigenvaluesSH $ hessianMatrix
+    result = all (>0) . toList . eigenvaluesSH $ hessianMatrix
